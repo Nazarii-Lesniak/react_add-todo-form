@@ -1,5 +1,4 @@
-import { TodoInfo } from '../TodoInfo';
-import { Todo } from '../TodoInfo';
+import { TodoInfo, Todo } from '../TodoInfo';
 
 interface Props {
   todos: Todo[];
