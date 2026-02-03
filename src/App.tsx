@@ -3,20 +3,27 @@ import './App.scss';
 import usersFromServer from './api/users';
 import todosFromServer from './api/todos';
 
-import { User } from './components/UserInfo';
 import { Todo } from './components/TodoInfo';
 import { TodoList } from './components/TodoList';
 import { useState } from 'react';
 
 export const App = () => {
-  const preparedTodos: Todo[] = todosFromServer.map(todo => {
-    const user = usersFromServer.find(u => u.id === todo.userId);
+  const preparedTodos: Todo[] = todosFromServer
+    .map(todo => {
+      const user = usersFromServer.find(
+        currentUser => currentUser.id === todo.userId,
+      );
 
-    return {
-      ...todo,
-      user: user as User,
-    };
-  });
+      if (!user) {
+        return null;
+      }
+
+      return {
+        ...todo,
+        user: user,
+      };
+    })
+    .filter((todo): todo is Todo => todo !== null);
 
   const [todos, setTodos] = useState<Todo[]>(preparedTodos);
   const [title, setTitle] = useState('');
@@ -38,15 +45,15 @@ export const App = () => {
       return;
     }
 
-    const selectedUser = usersFromServer.find(u => u.id === userId);
+    const selectedUser = usersFromServer.find(user => user.id === userId);
 
     if (!selectedUser) {
       return;
     }
 
     const newTodo = {
-      id: Math.max(0, ...todos.map(t => t.id)) + 1,
-      title: title,
+      id: Math.max(0, ...todos.map(todo => todo.id)) + 1,
+      title: normalizedTitle,
       userId: userId,
       completed: false,
       user: selectedUser,
@@ -56,8 +63,6 @@ export const App = () => {
 
     setTitle('');
     setUserId(0);
-    setHasTitleError(false);
-    setHasUserError(false);
   };
 
   return (
